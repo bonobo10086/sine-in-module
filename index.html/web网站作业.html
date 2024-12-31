@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>签到功能模块</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #0779e4 3px solid;
+        }
+
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        nav {
+            float: right;
+            margin-top: 10px;
+        }
+
+        nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-left: 20px;
+        }
+
+        .main-content {
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #333;
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #0779e4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #055bb5;
+        }
+
+        #statistics {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            width: 300px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        #statistics h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        #statistics ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #statistics ul li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>签到功能模块</h1>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">用户登录</a></li>
+                    <li><a href="#">签到功能</a></li>
+                    <li><a href="#" onclick="toggleStatistics()">统计查询</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div id="statistics">
+        <h3>签到统计</h3>
+        <ul id="statisticsList"></ul>
+    </div>
+
+    <div class="container">
+        <section class="main-content">
+            <h2>用户登录</h2>
+            <p>请输入您的用户名后登录。</p>
+            <input type="text" id="username" placeholder="输入用户名" />
+            <button onclick="login()">登录</button>
+
+            <h2>在线签到</h2>
+            <p>学生点击下方按钮即可完成签到。</p>
+            <button onclick="signIn()">签到</button>
+        </section>
+    </div>
+
+    <footer>
+        <p>Copyright &copy; 2024 签到功能模块系统</p>
+    </footer>
+
+    <script>
+        const users = [];
+        let currentUsername = '';
+
+        function login() {
+            const usernameInput = document.getElementById('username').value.trim();
+            if (usernameInput) {
+                currentUsername = usernameInput;
+                alert(`登录成功！欢迎，${currentUsername}！`);
+            } else {
+                alert('请先输入用户名！');
+            }
+        }
+
+        async function signIn() {
+            if (!currentUsername) {
+                alert('请先登录后再签到！');
+                return;
+            }
+
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const user = {
+                    username: currentUsername,
+                    ip: data.ip,
+                    time: new Date().toLocaleString()
+                };
+                users.push(user);
+                alert(`签到成功！用户名: ${user.username}, IP: ${user.ip}`);
+                updateStatistics();
+            } catch (error) {
+                console.error('获取IP失败:', error);
+                alert('签到失败，请稍后重试。');
+            }
+        }
+
+        function toggleStatistics() {
+            const statsDiv = document.getElementById('statistics');
+            statsDiv.style.display = statsDiv.style.display === 'block' ? 'none' : 'block';
+            updateStatistics();
+        }
+
+        function updateStatistics() {
+            const statsList = document.getElementById('statisticsList');
+            statsList.innerHTML = users
+                .map(user => `<li>用户名: ${user.username} | IP: ${user.ip} | 时间: ${user.time}</li>`)
+                .join('');
+        }
+    </script>
+</body>
+
+</html>
